@@ -27,7 +27,7 @@ def dashboards():
 #don't use this.
 @app.route("/dashboard/getalltops/<uid>")
 def getAllTops(uid):
-    return jsonify(Dashboard().getAllTopData(uid))
+    return jsonify(Dashboard(db_host, db_port).getAllTopData(uid))
 
 if __name__ == "__main__":
     host = 'localhost'

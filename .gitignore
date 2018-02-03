@@ -1,3 +1,7 @@
 configuration
 __pycache__/
 .DS_Store
+
+server.log
+mongodb.log
+run.sh

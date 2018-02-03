@@ -28,15 +28,16 @@ class GetPostsData:
         start = time.time()
         reactions_content = []
         comments_content = []
-        base_url = 'https://graph.facebook.com/v2.11/me'
+        base_url = 'https://graph.facebook.com/v2.12/me'
         fields = 'id,name,posts.until(%s).since(%s){reactions{id,name,type},comments{from,comments{from}}}' % (until, since)
         url = '%s?fields=%s&access_token=%s' % (base_url,fields,access_token)
         content = requests.get(url).json()
         next_page = ''
+        if 'posts' not in content: print('posts not found')
         try:
             if 'paging' in content['posts']: next_page = content['posts']['paging']['next']
         except :
-            print(content)
+            # print(content)
             return content
         for post in content['posts']['data']:
             if 'reactions' in post: 
@@ -58,7 +59,7 @@ class GetPostsData:
 
         print('get data finnished in : ', str(time.time() - start))
 
-        updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], content['name'], self.reactions_sorted_list[:100], self.comments_sorted_list[:100]))
+        updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], content['name'], self.reactions_sorted_list[:100], self.comments_sorted_list[:100]), daemon= True)
         updateDatabase_threading.start()
         
         return {
@@ -87,7 +88,6 @@ class GetPostsData:
             next_page = content['paging']['next']
             do_next = threading.Thread(target= self.doNext, args=(next_page,), daemon= True)
             do_next.start()
-            # print('Threading')
             
         for post in content['data']:
             if 'reactions' in post: reactions_content.append(post['reactions'])
@@ -169,21 +169,32 @@ class GetPostsData:
         return custom['comments']
 
     def updateDatabase(self, uid, name, reactions_sorted_list, comments_sorted_list):
-        print('database updating')
         client = MongoClient(self.host, self.port)
         db = client['database']
         dashboards = db.dashboards
-        if dashboards.find_one({'_uid' : uid}) != None : dashboards.find_one_and_update({'_uid' : uid}, { '$set': {'name' : name, 'comments' : comments_sorted_list, 'reactions' : reactions_sorted_list}})
-        else : dashboards.insert_one(
-            {
-                '_uid' : uid,
-                'name' : name, 
-                'comments' : comments_sorted_list, 
-                'reactions' : reactions_sorted_list
-            })
+        if dashboards.find_one({'_uid' : uid}) != None : 
+            dashboards.find_one_and_update(
+                {'_uid' : uid}, 
+                { '$set': 
+                    {
+                        'name' : name, 
+                        'comments' : comments_sorted_list, 
+                        'reactions' : reactions_sorted_list
+                    }
+                }
+            )
+        else : 
+            dashboards.insert_one(
+                {
+                    '_uid' : uid,
+                    'name' : name, 
+                    'comments' : comments_sorted_list, 
+                    'reactions' : reactions_sorted_list
+                }
+            )
 
     def getSummaryPost(self,access_token, since='',until=''):
-        base_url = 'https://graph.facebook.com/v2.11/me'
+        base_url = 'https://graph.facebook.com/v2.12/me'
         fields = 'id,name,posts.until(%s).since(%s){reactions.summary(true),comments.summary(true),permalink_url,created_time}' % (until, since)
         url = '%s?fields=%s&access_token=%s' % (base_url,fields,access_token)
         content = requests.get(url).json()

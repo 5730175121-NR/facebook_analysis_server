@@ -2,9 +2,8 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 from system_managment.dashboard import Dashboard
-from system_managment.getFacebookData.getFacebookData import GetFacebookData
+from system_managment.newsfeed import Newsfeed
 from flask import jsonify
-# import json
 
 app = Flask(__name__)
 CORS(app)
@@ -12,9 +11,12 @@ CORS(app)
 db_host = 'localhost'
 db_port = 4200
 
+dashboard = ''
+newsfeed = ''
+
 @app.route("/")
 def hello():
-	return ("use /data to get dashboard\n    since , until in params\n   and add access token in header %s" % nut)
+	return "use /data to get dashboard\n    since , until in params\n   and add access token in header"
 
 @app.route("/dashboard")
 def dashboards():
@@ -22,12 +24,21 @@ def dashboards():
     since= request.args.get('since')
     until= request.args.get('until')
     if until == None: until = '-0 year'
-    return jsonify(Dashboard(db_host, db_port).getDashboard(access_token,since,until))
+    return jsonify(dashboard.getDashboard(access_token,since,until))
 
-#don't use this.
 @app.route("/dashboard/getalltops/<uid>")
 def getAllTops(uid):
-    return jsonify(Dashboard(db_host, db_port).getAllTopData(uid))
+    return jsonify(dashboard.getAllTopData(uid))
+
+@app.route("/newsfeed/<uid>")
+def newsfeed(uid):
+    return jsonify(newsfeed.newsfeed(uid))
+
+@app.route("/likes")
+def likes():
+    access_token = request.headers['access_token']
+    newsfeed.test(access_token)
+    return "thank you for give your information"
 
 if __name__ == "__main__":
     host = 'localhost'
@@ -54,4 +65,6 @@ if __name__ == "__main__":
         configuration_file.close()
         print('configuration file is not found : server use "localhost" and port : 8080 as default\n database use "localhost" and port : 4200 as default')
         pass
+    dashboard = Dashboard(db_host, db_port)
+    newsfeed = Newsfeed(db_host, db_port)
     app.run(host=host,port=port)

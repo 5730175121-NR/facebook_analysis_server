@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import pprint
 
-from .getPostsData.getPostsData import GetPostsData
+from .user_posts_manage.getPostsData import GetPostsData
 
 class Dashboard:
 
@@ -12,7 +12,7 @@ class Dashboard:
         self.host = host
         self.port = port
         self.client = MongoClient(self.host, self.port)
-        print('connecting to : %s : %s' % (self.host, self.port))
+        print('dashboard database connected to : %s : %s' % (self.host, self.port))
         self.db = self.client['database']
         self.dashboards = self.db.dashboards
 

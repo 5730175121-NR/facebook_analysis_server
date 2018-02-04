@@ -32,12 +32,13 @@ def getAllTops(uid):
 
 @app.route("/newsfeed/<uid>")
 def newsfeed(uid):
-    return jsonify(newsfeed.newsfeed(uid))
+    access_token = request.headers['access_token']
+    return jsonify(newsfeed.newsfeed( access_token, uid))
 
 @app.route("/likes")
 def likes():
     access_token = request.headers['access_token']
-    newsfeed.test(access_token)
+    newsfeed.getUserLikesPages(access_token)
     return "thank you for give your information"
 
 if __name__ == "__main__":

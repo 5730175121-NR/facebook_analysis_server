@@ -5,3 +5,4 @@ __pycache__/
 server.log
 mongodb.log
 run.sh
+test.py

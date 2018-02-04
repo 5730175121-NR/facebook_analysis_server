@@ -5,7 +5,6 @@ import time
 
 import pymongo
 from pymongo import MongoClient
-import pprint
 
 class GetPostsData:
 

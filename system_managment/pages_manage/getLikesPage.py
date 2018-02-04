@@ -5,7 +5,6 @@ import time
 
 import pymongo
 from pymongo import MongoClient
-import pprint
 
 class GetLikesPage:
 
@@ -13,7 +12,7 @@ class GetLikesPage:
         self.host = host
         self.port = port
 
-        self.list_of_page = []
+        self.list_of_page = {}
         self.list_of_page_locker = threading.Lock()
 
     def fetchData(self,access_token=''):
@@ -31,13 +30,7 @@ class GetLikesPage:
         do_next.start()
         for page in content['likes']['data']:
             with self.list_of_page_locker :
-                self.list_of_page.append(
-                    {
-                        'id' : page['id'],
-                        'name' : page['name'],
-                        'fan_count' : page['fan_count']
-                    }
-                )
+                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name'], 'fan_count' : page['fan_count']}
         do_next.join()
         updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], self.list_of_page), daemon= True)
         updateDatabase_threading.start()
@@ -53,13 +46,7 @@ class GetLikesPage:
                 do_next.start()
         for page in content['data']:
             with self.list_of_page_locker :
-                self.list_of_page.append(
-                    {
-                        'id' : page['id'],
-                        'name' : page['name'],
-                        'fan_count' : page['fan_count']
-                    }
-                )
+                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name'], 'fan_count' : page['fan_count']}
         if next_page != '' : do_next.join()
 
     def updateDatabase(self, uid, list_of_page):
@@ -80,7 +67,7 @@ class GetLikesPage:
                 {
                     '_uid' : uid,
                     'pages' : list_of_page,
-                    'active_pages' : [],
-                    'non_active_pages' : []
+                    'active_pages' : {},
+                    'non_active_pages' : {}
                 }
             )

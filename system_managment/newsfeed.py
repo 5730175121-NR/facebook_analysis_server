@@ -25,21 +25,30 @@ class Newsfeed:
     def newsfeed(self, access_token, uid):
         user_pages_data = self.user_pages.find_one({'_uid' : uid})
         pages = user_pages_data['pages']
-        return self.checkPagesCache(access_token, random.sample(list(pages.values()), 20))
+        return self.checkPagesCache(access_token, random.sample(list(pages.values()), 7))
 
     def checkPagesCache(self, access_token, list_of_user_pages):
         newsfeed = []
+        isError = False
+        msg = ''
         for page in list_of_user_pages:
             page_data = self.cache_pages.find_one({ 'page_id' : page['id']})
-            if page_data != None: 
-                for post in page_data['list_of_posts']:
-                    post['page_id'] = page_data['page_id']
-                    post['page_name'] = page_data['page_name']
-                    post['page_picture'] = page_data['page_picture']
-                    newsfeed.append(post)
+            if page_data != None:
+                delta_time = datetime.datetime.now() - page_data['time_stamp']
+                if(delta_time.days > 0 or delta_time.seconds > 4200):
+                    (isError, msg) = self.getPostsPage.fetchData(access_token, page['id'])
+                    page_data = self.cache_pages.find_one({ 'page_id' : page['id']})
             else:
-                get_pages_thread = threading.Thread(target= self.getPostsPage.fetchData, args= (access_token, page['id']), daemon= True)
-                get_pages_thread.start()
+                (isError, msg) = self.getPostsPage.fetchData(access_token, page['id'])
+                page_data = self.cache_pages.find_one({ 'page_id' : page['id']})
+            if isError : return msg
+            for post in page_data['list_of_posts']:
+                post['page_id'] = page_data['page_id']
+                post['page_name'] = page_data['page_name']
+                post['page_picture'] = page_data['page_picture']
+                newsfeed.append(post)
+        random.shuffle(newsfeed)
+        print( 'total post count : %d' % len(newsfeed))
         return newsfeed
 
     def getUserLikesPages(self, access_token):

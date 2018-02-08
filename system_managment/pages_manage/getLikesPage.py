@@ -12,7 +12,7 @@ class GetLikesPage:
         self.host = host
         self.port = port
 
-        self.list_of_page = {}
+        self.list_of_page = []
         self.list_of_page_locker = threading.Lock()
 
     def fetchData(self,access_token=''):
@@ -30,7 +30,8 @@ class GetLikesPage:
         do_next.start()
         for page in content['likes']['data']:
             with self.list_of_page_locker :
-                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name']}
+                # self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name']}
+                self.list_of_page.append({ 'id' : page['id'], 'name' : page['name']})
         do_next.join()
         updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], self.list_of_page), daemon= True)
         updateDatabase_threading.start()
@@ -46,7 +47,8 @@ class GetLikesPage:
                 do_next.start()
         for page in content['data']:
             with self.list_of_page_locker :
-                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name']}
+                # self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name']}
+                self.list_of_page.append({ 'id' : page['id'], 'name' : page['name']})
         if next_page != '' : do_next.join()
 
     def updateDatabase(self, uid, list_of_page):
@@ -66,8 +68,6 @@ class GetLikesPage:
             user_pages.insert_one(
                 {
                     '_uid' : uid,
-                    'pages' : list_of_page,
-                    'active_pages' : {},
-                    'non_active_pages' : {}
+                    'pages' : list_of_page
                 }
             )

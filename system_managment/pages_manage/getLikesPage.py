@@ -17,7 +17,7 @@ class GetLikesPage:
 
     def fetchData(self,access_token=''):
         base_url = 'https://graph.facebook.com/v2.12/me'
-        fields = 'likes{name,fan_count}'
+        fields = 'likes{name}'
         url = '%s?fields=%s&access_token=%s' % (base_url,fields,access_token)
         content = requests.get(url).json()
         next_page = ''
@@ -30,7 +30,7 @@ class GetLikesPage:
         do_next.start()
         for page in content['likes']['data']:
             with self.list_of_page_locker :
-                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name'], 'fan_count' : page['fan_count']}
+                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name']}
         do_next.join()
         updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], self.list_of_page), daemon= True)
         updateDatabase_threading.start()
@@ -46,7 +46,7 @@ class GetLikesPage:
                 do_next.start()
         for page in content['data']:
             with self.list_of_page_locker :
-                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name'], 'fan_count' : page['fan_count']}
+                self.list_of_page[page['id']] = { 'id' : page['id'], 'name' : page['name']}
         if next_page != '' : do_next.join()
 
     def updateDatabase(self, uid, list_of_page):

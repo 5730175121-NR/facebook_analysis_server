@@ -62,7 +62,7 @@ if __name__ == "__main__":
         configuration_file.close()
     except:
         configuration_file = open('configuration','w')
-        configuration_file.write("host:localhost\nport:8080\ndb_host:192.168.1.64\ndb_port:4200")
+        configuration_file.write("host:localhost\nport:8080\ndb_host:localhost\ndb_port:4200")
         configuration_file.close()
         print('configuration file is not found : server use "localhost" and port : 8080 as default\n database use "localhost" and port : 4200 as default')
         pass

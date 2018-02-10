@@ -18,7 +18,7 @@ class GetPostsPage:
         self.db = self.client['database']
         self.cache_pages = self.db['cache_pages']
     
-    def fetchData(self, access_token, page_id , limit=3):
+    def fetchData(self, access_token, page_id , limit=2):
         list_of_posts = []
         base_url = 'https://graph.facebook.com/v2.12/%s' % page_id
         fields = 'name,fan_count,photos.limit(1){images},posts.limit(%d){created_time,message,full_picture,reactions.summary(true),comments.summary(true),permalink_url}' % limit

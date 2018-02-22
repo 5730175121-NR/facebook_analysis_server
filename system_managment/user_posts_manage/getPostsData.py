@@ -60,13 +60,24 @@ class GetPostsData:
 
         updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], content['name'], self.reactions_sorted_list[:100], self.comments_sorted_list[:100]), daemon= True)
         updateDatabase_threading.start()
+
+        reactions_next = len(self.reactions_sorted_list) > 10
+        comments_next = len(self.comments_sorted_list) > 10
         
         return {
             '_uid' : str(content['id']),
             'name' : content['name'],
-            'reactions' : self.reactions_sorted_list[:10],
-            'comments': self.comments_sorted_list[:10],
-            'post_summary' : self.summary_sorted_list
+            'reactions' : {
+                'data' : self.reactions_sorted_list[:10],
+                'next' : reactions_next
+            },
+            'comments': {
+                'data' : self.comments_sorted_list[:10],
+                'next' : comments_next
+            },
+            'post_summary' : {
+                'data' : self.summary_sorted_list,
+            }
         }
 
     def doData(self,next_page):

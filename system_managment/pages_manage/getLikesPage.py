@@ -56,7 +56,7 @@ class GetLikesPage:
         db = client['database']
         user_pages = db['user_pages']
         if user_pages.find_one({'_uid' : uid}) != None : 
-            user_pages.find_one_and_update(
+            user_pages.update_one(
                 {'_uid' : uid}, 
                 { '$set': 
                     {
@@ -68,6 +68,7 @@ class GetLikesPage:
             user_pages.insert_one(
                 {
                     '_uid' : uid,
-                    'pages' : list_of_page
+                    'pages' : list_of_page,
+                    'current-newsfeed' : []
                 }
             )

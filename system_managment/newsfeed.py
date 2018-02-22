@@ -24,9 +24,37 @@ class Newsfeed:
 
     def newsfeed(self, access_token, uid):
         user_pages_data = self.user_pages.find_one({'_uid' : uid})
-        if user_pages_data == None: return "please use /likes atleast one times before use get /newsfeed" 
+        if user_pages_data == None: return "please use /likes atleast one time before use get /newsfeed" 
         # pages = user_pages_data['pages']
-        return self.checkPagesCache(access_token, uid, random.sample(user_pages_data['pages'], 10))
+        random_pages = random.sample(user_pages_data['pages'],50)
+        update_current_newsfeed_thread = threading.Thread(target= self.update_current_newsfeed, args= (uid ,random_pages[10:]), daemon= True)
+        update_current_newsfeed_thread.start()
+        return {
+                'newsfeed' : {
+                    'data' : self.checkPagesCache(access_token, uid, random_pages[:10])
+                },
+                'next' : True
+            }
+
+        
+
+    def newsfeed_next(self, access_token, uid):
+        current_newsfeed = self.user_pages.find_one({'_uid' : uid}, {'current-newsfeed' : 1})['current-newsfeed']
+        if current_newsfeed == []:
+            return {
+                'newsfeed' : {
+                    'data' : current_newsfeed
+                },
+                'next' : False
+            }
+        update_current_newsfeed_thread = threading.Thread(target= self.update_current_newsfeed, args= (uid ,current_newsfeed[10:]), daemon= True)
+        update_current_newsfeed_thread.start()
+        return {
+                'newsfeed' : {
+                    'data' : self.checkPagesCache(access_token, uid, current_newsfeed[:10])
+                },
+                'next' : True
+            }
 
     def checkPagesCache(self, access_token, uid, list_of_user_pages):
         newsfeed_first = []
@@ -67,10 +95,15 @@ class Newsfeed:
     def getUserLikesPages(self, access_token):
         GetLikesPage(self.host, self.port).fetchData(access_token=access_token)
 
+    def update_current_newsfeed(self, uid, current_newsfeed):
+        self.user_pages.update_one(
+             { '_uid': uid },
+             {'$set' : { 'current-newsfeed' : current_newsfeed}}
+        )
+
     def removeInactivePage(self, uid, inactive_page):
         for page_id in inactive_page:
             self.user_pages.update_one(
                 { '_uid': uid },
                 { '$pull': { 'pages': { 'id' : page_id } } }
             )
-        pass

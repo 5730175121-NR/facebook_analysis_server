@@ -16,7 +16,7 @@ newsfeed = ''
 
 @app.route("/")
 def hello():
-	return "use /data to get dashboard\n    since , until in params\n   and add access token in header"
+	return "use /data to get dashboard\nsince , until in params\nand add access token in header"
 
 @app.route("/dashboard")
 def dashboards():
@@ -34,6 +34,11 @@ def getAllTops(uid):
 def newsfeed(uid):
     access_token = request.headers['access_token']
     return jsonify(newsfeed.newsfeed( access_token, uid))
+
+@app.route("/newsfeed/next/<uid>")
+def newsfeed_next(uid):
+    access_token = request.headers['access_token']
+    return jsonify(newsfeed.newsfeed_next( access_token, uid))
 
 @app.route("/likes")
 def likes():

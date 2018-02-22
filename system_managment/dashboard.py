@@ -25,7 +25,11 @@ class Dashboard:
         returnAllTopData = {
             '_uid' : allTopData['_uid'],
             'name' : allTopData['name'],
-            'comments' : allTopData['comments'],
-            'reactions' : allTopData['reactions']
+            'comments' : {
+                'data' : allTopData['comments']
+            },
+            'reactions' : {
+                'data' : allTopData['reactions']
+            }
         }
         return returnAllTopData

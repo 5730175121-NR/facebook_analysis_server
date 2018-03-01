@@ -244,7 +244,7 @@ class GetPostsData:
         wordcloud = WordCloudGenerator().generate(" ".join(self.message), uid)
         if(wordcloud == 'error'): 
             print("uid : %s can't generate world clound" % uid)
-            print(" ".join(self.message))
+            print(self.message)
             return {
                 'error' : {
                     'message' : "can't generate world clound"

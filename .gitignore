@@ -6,3 +6,5 @@ server.log
 mongodb.log
 run.sh
 test.py
+server_pid
+stop.sh

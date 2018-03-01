@@ -1,7 +1,11 @@
 from pythainlp import word_tokenize
 from pythainlp.corpus import stopwords
 from wordcloud import WordCloud
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+
 
 class WordCloudGenerator:
     def __init__(self):

@@ -21,7 +21,7 @@ class GetPostsPage:
     def fetchData(self, access_token, page_id , limit=2):
         list_of_posts = []
         base_url = 'https://graph.facebook.com/v2.12/%s' % page_id
-        fields = 'name,fan_count,photos.limit(1){images},posts.limit(%d){created_time,message,full_picture,reactions.summary(true),comments.summary(true),permalink_url}' % limit
+        fields = 'name,fan_count,photos.limit(1){images},posts.limit(%d){created_time,message,full_picture,reactions.summary(true),comments.summary(true),permalink_url,type}' % limit
         url = '%s?fields=%s&access_token=%s' % (base_url,fields,access_token)
         content = requests.get(url).json()
         if 'name' not in content: return (True, content)
@@ -41,6 +41,7 @@ class GetPostsPage:
                 if 'full_picture' in post: full_picture = post['full_picture']
                 list_of_posts.append({
                     'id' : post['id'],
+                    'type' : post['type'],
                     'created_time' : post['created_time'],
                     'message': message,
                     'full_picture' : full_picture,

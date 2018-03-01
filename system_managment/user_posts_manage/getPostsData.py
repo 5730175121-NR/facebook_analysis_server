@@ -6,6 +6,8 @@ import time
 import pymongo
 from pymongo import MongoClient
 
+from .wordCloudGenerator import WordCloudGenerator
+
 class GetPostsData:
 
     def __init__(self,host='localhost',port=8080):
@@ -22,13 +24,15 @@ class GetPostsData:
         # host and port for database
         self.host = host
         self.port = port
+        # Message
+        self.message = []
 
     def fetchData(self,access_token='',since='',until=''):
         start = time.time()
         reactions_content = []
         comments_content = []
         base_url = 'https://graph.facebook.com/v2.12/me'
-        fields = 'id,name,posts.until(%s).since(%s){reactions{id,name,type},comments{from,comments{from}}}' % (until, since)
+        fields = 'id,name,posts.until(%s).since(%s){reactions{id,name,type},comments{from,comments{from}},message}' % (until, since)
         url = '%s?fields=%s&access_token=%s' % (base_url,fields,access_token)
         content = requests.get(url).json()
         next_page = ''
@@ -36,13 +40,11 @@ class GetPostsData:
         try:
             if 'paging' in content['posts']: next_page = content['posts']['paging']['next']
         except :
-            # print(content)
             return content
         for post in content['posts']['data']:
-            if 'reactions' in post: 
-                reactions_content.append(post['reactions'])
-            if 'comments' in post: 
-                comments_content.append(post['comments'])
+            if 'message' in post: self.message.append(post['message'])
+            if 'reactions' in post: reactions_content.append(post['reactions'])
+            if 'comments' in post: comments_content.append(post['comments'])
         summary_thread = threading.Thread(target= self.getSummaryPost, args= (access_token,since,until), daemon=True)
         getReactions_thread = threading.Thread(target= self.getReactions, args= (reactions_content,), daemon= True)
         getComments_thread = threading.Thread(target= self.getComments, args= (comments_content,), daemon= True)
@@ -63,6 +65,8 @@ class GetPostsData:
 
         reactions_next = len(self.reactions_sorted_list) > 10
         comments_next = len(self.comments_sorted_list) > 10
+
+        self.generate_wordcloud(str(content['id']))
         
         return {
             '_uid' : str(content['id']),
@@ -100,6 +104,7 @@ class GetPostsData:
             do_next.start()
             
         for post in content['data']:
+            if 'message' in post: self.message.append(post['message'])
             if 'reactions' in post: reactions_content.append(post['reactions'])
             if 'comments' in post: comments_content.append(post['comments'])
         getReactions_thread = threading.Thread(target= self.getReactions, args= (reactions_content,), daemon= True)
@@ -234,6 +239,17 @@ class GetPostsData:
                 'total_reactions': post['reactions']['summary']['total_count'],
                 'total_comments': post['comments']['summary']['total_count'],
             })
+    
+    def generate_wordcloud(self, uid):
+        wordcloud = WordCloudGenerator().generate(" ".join(self.message), uid)
+        if(wordcloud == 'error'): 
+            print("uid : %s can't generate world clound" % uid)
+            print(" ".join(self.message))
+            return {
+                'error' : {
+                    'message' : "can't generate world clound"
+                }
+            }
 
 
 

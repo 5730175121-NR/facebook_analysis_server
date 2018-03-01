@@ -241,15 +241,24 @@ class GetPostsData:
             })
     
     def generate_wordcloud(self, uid):
-        wordcloud = WordCloudGenerator().generate(" ".join(self.message), uid)
+        text = (" ".join(self.message))
+        self.whatisthis(text)
+        wordcloud = WordCloudGenerator().generate(text, uid)
         if(wordcloud == 'error'): 
             print("uid : %s can't generate world clound" % uid)
-            print(self.message)
+            print(text)
             return {
                 'error' : {
                     'message' : "can't generate world clound"
                 }
             }
 
+    def whatisthis(self,s):
+        if isinstance(s, str):
+            print ("ordinary string")
+        elif isinstance(s, unicode):
+            print ("unicode string")
+        else:
+            print ("not a string")
 
 

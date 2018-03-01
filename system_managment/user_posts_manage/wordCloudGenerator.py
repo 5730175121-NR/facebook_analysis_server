@@ -8,8 +8,6 @@ class WordCloudGenerator:
         pass
 
     def generate(self, text, uid):
-        # text = text.replace('"', '').replace('\r', '')
-        text = text.encode('utf-8')
         try:
             wordcloud = WordCloud(font_path='THSarabunNew.ttf', stopwords = ' '.join(stopwords.words('thai')), background_color="white", regexp=r"[\u0E00-\u0E7Fa-zA-Z']+").generate(' '.join(word_tokenize(text)))
             plt.figure(dpi=400)

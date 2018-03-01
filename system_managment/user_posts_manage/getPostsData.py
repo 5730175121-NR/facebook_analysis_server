@@ -25,7 +25,7 @@ class GetPostsData:
         self.host = host
         self.port = port
         # Message
-        self.message = ''
+        self.message = []
 
     def fetchData(self,access_token='',since='',until=''):
         start = time.time()
@@ -42,7 +42,7 @@ class GetPostsData:
         except :
             return content
         for post in content['posts']['data']:
-            if 'message' in post: self.message += " " + post['message']
+            if 'message' in post: self.message.append(post['message'])
             if 'reactions' in post: reactions_content.append(post['reactions'])
             if 'comments' in post: comments_content.append(post['comments'])
         summary_thread = threading.Thread(target= self.getSummaryPost, args= (access_token,since,until), daemon=True)
@@ -104,7 +104,7 @@ class GetPostsData:
             do_next.start()
             
         for post in content['data']:
-            if 'message' in post: self.message += " " + post['message']
+            if 'message' in post: self.message.append(post['message'])
             if 'reactions' in post: reactions_content.append(post['reactions'])
             if 'comments' in post: comments_content.append(post['comments'])
         getReactions_thread = threading.Thread(target= self.getReactions, args= (reactions_content,), daemon= True)
@@ -241,10 +241,10 @@ class GetPostsData:
             })
     
     def generate_wordcloud(self, uid):
-        wordcloud = WordCloudGenerator().generate(self.message, uid)
+        wordcloud = WordCloudGenerator().generate(" ".join(self.message), uid)
         if(wordcloud == 'error'): 
             print("uid : %s can't generate world clound" % uid)
-            print(self.message.encode('utf-8'))
+            print(self.message)
             return {
                 'error' : {
                     'message' : "can't generate world clound"

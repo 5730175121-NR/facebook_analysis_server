@@ -8,3 +8,5 @@ run.sh
 test.py
 server_pid
 stop.sh
+test.py
+wordcloud_pic/

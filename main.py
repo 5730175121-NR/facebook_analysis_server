@@ -4,6 +4,7 @@ from flask_cors import CORS
 from system_managment.dashboard import Dashboard
 from system_managment.newsfeed import Newsfeed
 from flask import jsonify
+from flask import send_file
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +46,11 @@ def likes():
     access_token = request.headers['access_token']
     newsfeed.getUserLikesPages(access_token)
     return "thank you for give your information"
+
+@app.route('/getwordcloud/<uid>')
+def get_wordcloud(uid):
+    filename = "wordcloud_pic/%s.png" % uid
+    return send_file(filename, mimetype='image/png')
 
 if __name__ == "__main__":
     host = 'localhost'

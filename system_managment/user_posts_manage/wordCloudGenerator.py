@@ -13,11 +13,12 @@ class WordCloudGenerator:
 
     def generate(self, text, uid):
         try:
-            wordcloud = WordCloud(font_path='THSarabunNew.ttf', stopwords = ' '.join(stopwords.words('thai')), background_color="white", regexp=r"[\u0E00-\u0E7Fa-zA-Z']+").generate(' '.join(word_tokenize(text)))
-            plt.figure(dpi=400)
+            wordcloud = WordCloud(width=1920, height=1080,font_path='THSarabunNew.ttf', stopwords = ' '.join(stopwords.words('thai')), background_color="white", regexp=r"[\u0E00-\u0E7Fa-zA-Z']+").generate(' '.join(word_tokenize(text,engine="newmm")))
+            plt.figure()
             plt.imshow(wordcloud, cmap=plt.cm.gray, interpolation='bilinear')
             plt.axis("off")
-            plt.savefig('wordcloud_pic/%s.png' % uid)
+            plt.show()
+            plt.savefig('wordcloud_pic/%s.png' % uid, dpi=400)
         except:
             return "error"
         return "done"

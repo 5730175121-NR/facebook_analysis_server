@@ -61,13 +61,13 @@ class GetPostsData:
         print('get data finnished in : ', str(time.time() - start))
 
         updateDatabase_threading = threading.Thread(target= self.updateDatabase, args=(content['id'], content['name'], self.reactions_sorted_list[:100], self.comments_sorted_list[:100]), daemon= True)
+        wordcloud_thread = threading.Thread(target= self.generate_wordcloud, args= (str(content['id']),), daemon= True)
         updateDatabase_threading.start()
+        wordcloud_thread.start()
 
         reactions_next = len(self.reactions_sorted_list) > 10
         comments_next = len(self.comments_sorted_list) > 10
-
-        self.generate_wordcloud(str(content['id']))
-        
+                
         return {
             '_uid' : str(content['id']),
             'name' : content['name'],

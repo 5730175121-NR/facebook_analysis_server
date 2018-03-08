@@ -1,13 +1,13 @@
 from flask import Flask
 from flask import request
-from flask_cors import CORS
 from system_managment.dashboard import Dashboard
 from system_managment.newsfeed import Newsfeed
 from flask import jsonify
 from flask import send_file
 
+from crossdomain import crossdomain
+
 app = Flask(__name__)
-CORS(app)
 
 db_host = 'localhost'
 db_port = 4200
@@ -16,10 +16,12 @@ dashboard = ''
 newsfeed = ''
 
 @app.route("/")
+@crossdomain(origin='*')
 def hello():
 	return "use /data to get dashboard\nsince , until in params\nand add access token in header"
 
 @app.route("/dashboard")
+@crossdomain(origin='*')
 def dashboards():
     access_token = request.headers['access_token']
     since= request.args.get('since')
@@ -28,26 +30,31 @@ def dashboards():
     return jsonify(dashboard.getDashboard(access_token,since,until))
 
 @app.route("/dashboard/getalltops/<uid>")
+@crossdomain(origin='*')
 def getAllTops(uid):
     return jsonify(dashboard.getAllTopData(uid))
 
 @app.route("/newsfeed/<uid>")
+@crossdomain(origin='*')
 def newsfeed(uid):
     access_token = request.headers['access_token']
     return jsonify(newsfeed.newsfeed( access_token, uid))
 
 @app.route("/newsfeed/next/<uid>")
+@crossdomain(origin='*')
 def newsfeed_next(uid):
     access_token = request.headers['access_token']
     return jsonify(newsfeed.newsfeed_next( access_token, uid))
 
 @app.route("/likes")
+@crossdomain(origin='*')
 def likes():
     access_token = request.headers['access_token']
     newsfeed.getUserLikesPages(access_token)
     return "thank you for give your information"
 
 @app.route('/getwordcloud/<uid>')
+@crossdomain(origin='*')
 def get_wordcloud(uid):
     filename = "wordcloud_pic/%s.png" % uid
     return send_file(filename, mimetype='image/png')

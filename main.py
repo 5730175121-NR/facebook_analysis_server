@@ -20,7 +20,7 @@ newsfeed = ''
 def hello():
 	return "use /data to get dashboard\nsince , until in params\nand add access token in header"
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=['GET'])
 @crossdomain(origin='*')
 def dashboards():
     access_token = request.headers['access_token']
@@ -29,35 +29,42 @@ def dashboards():
     if until == None: until = '-0 year'
     return jsonify(dashboard.getDashboard(access_token,since,until))
 
-@app.route("/dashboard/getalltops/<uid>")
+@app.route("/dashboard/getalltops/<uid>", methods=['GET'])
 @crossdomain(origin='*')
 def getAllTops(uid):
     return jsonify(dashboard.getAllTopData(uid))
 
-@app.route("/newsfeed/<uid>")
+@app.route("/newsfeed/<uid>", methods=['GET'])
 @crossdomain(origin='*')
 def newsfeed(uid):
     access_token = request.headers['access_token']
     return jsonify(newsfeed.newsfeed( access_token, uid))
 
-@app.route("/newsfeed/next/<uid>")
+@app.route("/newsfeed/next/<uid>", methods=['GET'])
 @crossdomain(origin='*')
 def newsfeed_next(uid):
     access_token = request.headers['access_token']
     return jsonify(newsfeed.newsfeed_next( access_token, uid))
 
-@app.route("/likes")
+@app.route("/likes", methods=['GET'])
 @crossdomain(origin='*')
 def likes():
     access_token = request.headers['access_token']
     newsfeed.getUserLikesPages(access_token)
     return "thank you for give your information"
 
-@app.route('/getwordcloud/<uid>')
+@app.route('/getwordcloud/<uid>', methods=['GET'])
 @crossdomain(origin='*')
 def get_wordcloud(uid):
     filename = "wordcloud_pic/%s.png" % uid
     return send_file(filename, mimetype='image/png')
+
+@app.route('/historyData/<uid>', methods=['POST'])
+@crossdomain(origin='*')
+def add_message(uid):
+    content = request.json
+    print(content)
+    return jsonify(content)
 
 if __name__ == "__main__":
     host = 'localhost'

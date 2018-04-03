@@ -66,14 +66,6 @@ def collect_history_data(uid):
     print(content)
     return jsonify(content)
 
-@app.errorhandler(301)
-def page_not_found(e):
-    return "Hello World!!!"
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return "Hello World!!!"
-
 if __name__ == "__main__":
     host = 'localhost'
     port = 8080

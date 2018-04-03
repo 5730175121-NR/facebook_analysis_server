@@ -59,9 +59,9 @@ def get_wordcloud(uid):
     filename = "wordcloud_pic/%s.png" % uid
     return send_file(filename, mimetype='image/png')
 
-@app.route('/historyData/<uid>', methods=['POST'])
+@app.route('/historydata/<uid>', methods=['POST'])
 @crossdomain(origin='*')
-def add_message(uid):
+def collect_history_data(uid):
     content = request.json
     print(content)
     return jsonify(content)
